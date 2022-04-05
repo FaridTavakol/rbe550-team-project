@@ -18,29 +18,34 @@ e3 = [0;0;1];
 global l1;
 l1 = 40;      %mm
 global l2;
-l2 = 23.77;  %mm For unicycle model this will be zero
+l2 = 23.775;  %mm For unicycle model this will be zero
 global curvature;
-curvature = 0.00449;
+curvature = 0.00449/2;
 
 global V1;
 V1 = [e3; curvature * e1];
 global V2;
 V2 = [zeros(3,1); e3];
 
-% Servo loop period, set to 5ms,200hZ
+% Duty cycle period
 global T;
-T = 0.005;
+T = 0.5;
+
+% Desired duty cycle D = tau/T
+global duty_cycle
+duty_cycle = 0.37;
+
+% Time step for simulation
+step = 0.05;
 
 % Simulation configuration
 simulationTime = 20;       %second
-time = 0:T:simulationTime;  % simulation run time
-numberOfIterations = simulationTime/T + 1;
+time = 0:step:simulationTime;  % simulation run time
+numberOfIterations = simulationTime/step + 1;
 
 
 
 % Initial conditions:
-insertionSpeed = 23.50;      % mm/s
-% rotationSpeed = 32*pi;     % rad/s
 needleTipPos = zeros(3,1,numberOfIterations);
 needleTipPos(:,:,1) = [0;0;0];
 
@@ -57,8 +62,9 @@ FramePos = zeros(3, 1, numberOfIterations);
 FramePos(1:3,1) =  Gab(1:3,4,1)';
 
 % Configuration
-
-w_max = deg2rad(100);   % Max rotation speed of needle in deg/sec
+insertionSpeed = 10;      % mm/s
+global w_max
+w_max = deg2rad(180*2);   % Max rotation speed of needle in deg/sec= deg2rad(360*2);   % Max rotation speed of needle in deg/sec
 c = 20;         % Need to optimize the gaussian width, this is a tuning parameter
 
 
@@ -68,16 +74,14 @@ RotationSpeed = zeros(1,numberOfIterations);
 w_hat = zeros(1,numberOfIterations);
 TotalInsertionDistance = zeros(1,numberOfIterations);
 
-% Could also add a rotation speed parameter to override w_max
-flag =0;
-maxAllowableInsertion = 1e5;
+%% Could also add a rotation speed parameter to override w_max
 for i = 1:numberOfIterations
     % Calculate the desired set point position 'theta(k+1)'
     % for the current servo loop interval
-    %% NEED TO TAKE INTO ACCOUNT 0/360 DEGREE CROSSING
+    % NEED TO TAKE INTO ACCOUNT 0/360 DEGREE CROSSING
     
-    % w = w_max * w^
-    RotationSpeed(i) = w_hat(i) * w_max;
+    
+    RotationSpeed(i) = dutyCycle(time(i));  
     
     % Determine angle for the next iteration
     theta(i+1) = theta(i) + RotationSpeed(i) * T;
@@ -85,26 +89,13 @@ for i = 1:numberOfIterations
         theta(i+1) = theta(i+1) - (2*pi);
     end
     
-    u1 = insertionSpeed * T;
-    u2 = RotationSpeed(i) * T;
-    % Change in the insertion
-    if i>numberOfIterations/3 && flag ==0
-        u1 = 0;
-        u2 = pi;
-        flag =1;
-    end
-    if i>.7*numberOfIterations && flag==1
-        u1 = 0;
-        u2 = -2*pi;
-        flag =2;
-    end
-    TotalInsertionDistance(i+1) = TotalInsertionDistance(i) + u1;
-   % Statement to stop insertion after reaching some desired insertion
-    if TotalInsertionDistance(i) > maxAllowableInsertion
-        break;
-    end
+    u1 = insertionSpeed * step;
+    u2 = RotationSpeed(i) * step;
+        
+%     TotaleInsertionDistance(i+1) = TotalInsertionDistance(i) + u1;
+   
     % Calculating the kinematics using nonholonomic bicycle model
-    [Gab(:,:,i+1), needleTipPos(:,:,i+1)] = bicycleKinematicsModelOneIteration(Gab(:,:,i), u1, u2);
+    [Gab(:,:,i+1), needleTipPos(:,:,i)] = bicycleKinematicsModelOneIteration(Gab(:,:,i), u1, u2);
     FramePos(:,:,i+1) = Gab(1:3,4,i+1);
     
 end
@@ -130,9 +121,11 @@ hold on;
 
 % needleTipPos(1,1:end) = 0;
 % FramePos(1,:)= 0
+
 plot3(needleTipPos(1,1:end),needleTipPos(2,1:end), needleTipPos(3,1:end), 'r','Linewidth',2);
 plot3(FramePos(1,:), FramePos(2,:), FramePos(3,:), 'b','Linewidth',2);
 grid on
+set(gca,'DataAspectRatio', [1 1 1]);
 xlabel('x(mm)')
 ylabel('y(mm)')
 zlabel('z(mm)')
@@ -145,7 +138,9 @@ figure(6);
 hold on;
 plot(needleTipPos(3,:),needleTipPos(2,:), 'r','Linewidth',2);
 plot(FramePos(3,:), FramePos(2,:), 'b','Linewidth',2);
+set(gca,'DataAspectRatio', [1 1 1]);
 grid on
+
 xlabel('z(mm)')
 ylabel('y(mm)')
 title('simulated trajectory')
@@ -169,12 +164,12 @@ plot(FramePos(3,:), FramePos(1,:), 'b','Linewidth',2);
 grid on
 ylabel('x(mm)')
 xlabel('z(mm)')
-% axis equal
+set(gca,'DataAspectRatio', [1 1 1]);
 
 %Plot Trajectory
 figure(4);
 hold on;
-plot(time, [needleTipPos(1,1:end-1); needleTipPos(2,1:end-1)]);
+plot(time, [needleTipPos(1,1:end); needleTipPos(2,1:end)]);
 grid on
 title('simulated trajectory of tip vs time')
 xlabel('Time(sec)')
