@@ -18,8 +18,9 @@ j = fix(time/delta);
 % find desired duty cycle based on the curvature
 tau = calcDutyCyclePeriod(desiredCurvature, naturalCurvature)/100;
 if (j * delta) <= time && time <= delta * (j+ tau)
-    if tau==0
-        w = 2*pi / delta;
+    % Zero duty-cycle means no rotationional speed
+    if tau == 0
+        w = 0;
         return
     end
     w = (2 * pi)/(delta * tau);

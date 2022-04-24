@@ -31,7 +31,7 @@ V2 = [zeros(3,1); e3];
 delta = 0.5;
 
 % Time step for simulation
-step = 0.05;
+step = 0.0005;
 
 % Simulation configuration
 simulationTime = 20;       %second
@@ -75,7 +75,7 @@ for i = 1:numberOfIterations
     % for the current servo loop interval
     % NEED TO TAKE INTO ACCOUNT 0/360 DEGREE CROSSING
         
-    RotationSpeed(i) = dutyCycle(time(i), naturalCurvature, naturalCurvature, delta);  
+    RotationSpeed(i) = dutyCycle(time(i), 0.00249, naturalCurvature, delta);  
     
     % Determine angle for the next iteration
     theta(i+1) = theta(i) + RotationSpeed(i) * step;
@@ -94,7 +94,7 @@ for i = 1:numberOfIterations
     
 end
 % Display output
-figure(1)
+figure
 hold on;
 subplot(2,1,1)
 plot(time,theta(1:end-1),'r','Linewidth',2);
@@ -110,7 +110,7 @@ xlabel('Time (sec)')
 ylabel('Rotation Speed (rad/sec)')
 
 %Plot Trajectory
-figure(2);
+figure
 hold on;
 
 % needleTipPos(1,1:end) = 0;
@@ -128,13 +128,12 @@ legend('tip','frame')
 % axis equal
 
 %Plot Trajectory
-figure(6);
+figure
 hold on;
 plot(needleTipPos(3,:),needleTipPos(2,:), 'r','Linewidth',2);
 plot(FramePos(3,:), FramePos(2,:), 'b','Linewidth',2);
 % set(gca,'DataAspectRatio', [1 1 1]);
 grid on
-
 xlabel('z(mm)')
 ylabel('y(mm)')
 title('simulated trajectory')
@@ -143,7 +142,7 @@ legend('tip','frame')
 
 
 %Plot Trajectory
-figure(3);
+figure
 subplot(2,1,1)
 hold on;
 plot(FramePos(3,:), FramePos(2,:), 'b','Linewidth',2);
@@ -160,12 +159,12 @@ ylabel('x(mm)')
 xlabel('z(mm)')
 % set(gca,'DataAspectRatio', [1 1 1]);
 
-%Plot Trajectory
-figure(4);
-hold on;
-plot(time, [needleTipPos(1,1:end); needleTipPos(2,1:end)]);
-grid on
-title('simulated trajectory of tip vs time')
-xlabel('Time(sec)')
-ylabel('position(mm)')
-legend('x','y')
+% %Plot Trajectory
+% figure(4);
+% hold on;
+% plot(time, [needleTipPos(1,1:end); needleTipPos(2,1:end)]);
+% grid on
+% title('simulated trajectory of tip vs time')
+% xlabel('Time(sec)')
+% ylabel('position(mm)')
+% legend('x','y')
