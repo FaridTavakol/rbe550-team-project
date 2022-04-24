@@ -19,7 +19,7 @@ global l1;
 l1 = 40;      %mm
 global l2;
 l2 = 23.775;  %mm For unicycle model this will be zero
-global naturalCurvature;
+
 naturalCurvature= 0.00449;
 
 global V1;
@@ -27,13 +27,8 @@ V1 = [e3; naturalCurvature * e1];
 global V2;
 V2 = [zeros(3,1); e3];
 
-% Duty cycle period
-global delta;
+% Duty cycle period = t_rot + t_insertion
 delta = 0.5;
-
-% Desired duty cycle D = tau/T
-global duty_cycle
-duty_cycle = 0.37;
 
 % Time step for simulation
 step = 0.05;
@@ -79,13 +74,12 @@ for i = 1:numberOfIterations
     % Calculate the desired set point position 'theta(k+1)'
     % for the current servo loop interval
     % NEED TO TAKE INTO ACCOUNT 0/360 DEGREE CROSSING
-    
-    
-    RotationSpeed(i) = dutyCycle(time(i), naturalCurvature);  
+        
+    RotationSpeed(i) = dutyCycle(time(i), naturalCurvature, naturalCurvature, delta);  
     
     % Determine angle for the next iteration
-    theta(i+1) = theta(i) + RotationSpeed(i) * delta;
-    if(theta(i+1) > 2*pi)
+    theta(i+1) = theta(i) + RotationSpeed(i) * step;
+    if theta(i+1) > 2*pi
         theta(i+1) = theta(i+1) - (2*pi);
     end
     
