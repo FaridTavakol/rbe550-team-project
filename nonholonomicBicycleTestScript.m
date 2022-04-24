@@ -19,17 +19,17 @@ global l1;
 l1 = 40;      %mm
 global l2;
 l2 = 23.775;  %mm For unicycle model this will be zero
-global curvature;
-curvature = 0.00449/2;
+global naturalCurvature;
+naturalCurvature= 0.00449;
 
 global V1;
-V1 = [e3; curvature * e1];
+V1 = [e3; naturalCurvature * e1];
 global V2;
 V2 = [zeros(3,1); e3];
 
 % Duty cycle period
-global T;
-T = 0.5;
+global delta;
+delta = 0.5;
 
 % Desired duty cycle D = tau/T
 global duty_cycle
@@ -63,8 +63,8 @@ FramePos(1:3,1) =  Gab(1:3,4,1)';
 
 % Configuration
 insertionSpeed = 10;      % mm/s
-global w_max
-w_max = deg2rad(180*2);   % Max rotation speed of needle in deg/sec= deg2rad(360*2);   % Max rotation speed of needle in deg/sec
+% global w_max
+% w_max = deg2rad(180*2);   % Max rotation speed of needle in deg/sec= deg2rad(360*2);   % Max rotation speed of needle in deg/sec
 c = 20;         % Need to optimize the gaussian width, this is a tuning parameter
 
 
@@ -81,10 +81,10 @@ for i = 1:numberOfIterations
     % NEED TO TAKE INTO ACCOUNT 0/360 DEGREE CROSSING
     
     
-    RotationSpeed(i) = dutyCycle(time(i));  
+    RotationSpeed(i) = dutyCycle(time(i), naturalCurvature);  
     
     % Determine angle for the next iteration
-    theta(i+1) = theta(i) + RotationSpeed(i) * T;
+    theta(i+1) = theta(i) + RotationSpeed(i) * delta;
     if(theta(i+1) > 2*pi)
         theta(i+1) = theta(i+1) - (2*pi);
     end
@@ -125,7 +125,7 @@ hold on;
 plot3(needleTipPos(1,1:end),needleTipPos(2,1:end), needleTipPos(3,1:end), 'r','Linewidth',2);
 plot3(FramePos(1,:), FramePos(2,:), FramePos(3,:), 'b','Linewidth',2);
 grid on
-set(gca,'DataAspectRatio', [1 1 1]);
+% set(gca,'DataAspectRatio', [1 1 1]);
 xlabel('x(mm)')
 ylabel('y(mm)')
 zlabel('z(mm)')
@@ -138,7 +138,7 @@ figure(6);
 hold on;
 plot(needleTipPos(3,:),needleTipPos(2,:), 'r','Linewidth',2);
 plot(FramePos(3,:), FramePos(2,:), 'b','Linewidth',2);
-set(gca,'DataAspectRatio', [1 1 1]);
+% set(gca,'DataAspectRatio', [1 1 1]);
 grid on
 
 xlabel('z(mm)')
@@ -164,7 +164,7 @@ plot(FramePos(3,:), FramePos(1,:), 'b','Linewidth',2);
 grid on
 ylabel('x(mm)')
 xlabel('z(mm)')
-set(gca,'DataAspectRatio', [1 1 1]);
+% set(gca,'DataAspectRatio', [1 1 1]);
 
 %Plot Trajectory
 figure(4);
