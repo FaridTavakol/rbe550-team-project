@@ -11,7 +11,7 @@ end
 
 slope = (0 - naturalCurvature)/(100 - 0);
 if desiredCurvature > naturalCurvature
-    dutyCycle = 100;
+    dutyCycle = 0;
 else
     dutyCycle = (desiredCurvature - naturalCurvature)/slope;
 end

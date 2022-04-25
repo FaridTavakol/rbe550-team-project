@@ -18,9 +18,10 @@ e3 = [0;0;1];
 global l1;
 l1 = 40;      %mm
 global l2;
-l2 = 23.775;  %mm For unicycle model this will be zero
+l2 = 0;%23.775;  %mm For unicycle model this will be zero
 
-naturalCurvature= 0.00449;
+% naturalCurvature= 0.00449;
+naturalCurvature= 0.1938;
 
 global V1;
 V1 = [e3; naturalCurvature * e1];
@@ -28,24 +29,31 @@ global V2;
 V2 = [zeros(3,1); e3];
 
 % Duty cycle period = t_rot + t_insertion
-delta = 0.5;
+delta = 1;
+
+desiredCurvature = 0.1;
+tau = calcDutyCyclePeriod(desiredCurvature, naturalCurvature)/100;
 
 % Time step for simulation
-step = 0.0005;
+if tau==0
+    step = 0.0005;
+else
+    step = tau/10000;
+end
 
 % Simulation configuration
-simulationTime = 20;       %second
+simulationTime = 10;       %second
 time = 0:step:simulationTime;  % simulation run time
 numberOfIterations = simulationTime/step + 1;
 
 
 
 % Initial conditions:
-needleTipPos = zeros(3,1,numberOfIterations);
+% needleTipPos = zeros(3,1,numberOfIterations);
 needleTipPos(:,:,1) = [0;0;0];
 
 % Initial coordinate frame
-Gab = zeros(4,4, numberOfIterations);
+% Gab = zeros(4,4, numberOfIterations);
 Gab(4,4,:) = 1;
 
 Gab(:,:,1) = [1 0 0 0;...
@@ -53,30 +61,23 @@ Gab(:,:,1) = [1 0 0 0;...
     0 0 1 0;...
     0 0 0 1];
 % The position of the origin of the transform Gab in each iteration
-FramePos = zeros(3, 1, numberOfIterations);
+% FramePos = zeros(3, 1, numberOfIterations);
 FramePos(1:3,1) =  Gab(1:3,4,1)';
 
 % Configuration
-insertionSpeed = 10;      % mm/s
-% global w_max
-% w_max = deg2rad(180*2);   % Max rotation speed of needle in deg/sec= deg2rad(360*2);   % Max rotation speed of needle in deg/sec
-c = 20;         % Need to optimize the gaussian width, this is a tuning parameter
+insertionSpeed = 1;      % mm/s
 
-
-theta = zeros(1,numberOfIterations);   % Initial steering direction angle
+% theta = zeros(1,numberOfIterations);   % Initial steering direction angle
 theta(1) = 0.0;
-RotationSpeed = zeros(1,numberOfIterations);
-w_hat = zeros(1,numberOfIterations);
-TotalInsertionDistance = zeros(1,numberOfIterations);
+% RotationSpeed = zeros(1,numberOfIterations);
+% w_hat = zeros(1,numberOfIterations);
+% TotalInsertionDistance = zeros(1,numberOfIterations);
 
 %% Could also add a rotation speed parameter to override w_max
 for i = 1:numberOfIterations
-    % Calculate the desired set point position 'theta(k+1)'
-    % for the current servo loop interval
-    % NEED TO TAKE INTO ACCOUNT 0/360 DEGREE CROSSING
-        
-    RotationSpeed(i) = dutyCycle(time(i), 0.00249, naturalCurvature, delta);  
-    
+       
+    RotationSpeed(i) = dutyCycle(time(i), desiredCurvature, naturalCurvature, delta);  
+
     % Determine angle for the next iteration
     theta(i+1) = theta(i) + RotationSpeed(i) * step;
     if theta(i+1) > 2*pi
@@ -85,9 +86,8 @@ for i = 1:numberOfIterations
     
     u1 = insertionSpeed * step;
     u2 = RotationSpeed(i) * step;
-        
-%     TotaleInsertionDistance(i+1) = TotalInsertionDistance(i) + u1;
-   
+      
+  
     % Calculating the kinematics using nonholonomic bicycle model
     [Gab(:,:,i+1), needleTipPos(:,:,i)] = bicycleKinematicsModelOneIteration(Gab(:,:,i), u1, u2);
     FramePos(:,:,i+1) = Gab(1:3,4,i+1);
