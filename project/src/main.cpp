@@ -23,7 +23,6 @@ int main(int argc, char **argv)
 	 * c4		c3
 	 */
 
-
 	// Creating Environment.... coordinates in terms of (y,x) from top to bottom since its matrix
 	Environment env(25,25);
 	env.add_obstacle(Eigen::Vector2i(5,10),4,4);
@@ -54,12 +53,6 @@ int main(int argc, char **argv)
 	}
 
 	env.print();
-/*
-	// Draw map with results
-	// Just marking start & goal
-	(m_env->m_grid)(start(0), start(1)) = 5;
-	(m_env->m_grid)(goal(0), goal(1)) = 5;
-*/
 
 //	/* This starts the ROS server to serve different algo etc */
 //	motion_planning::ROS_Logistics rosObj();
