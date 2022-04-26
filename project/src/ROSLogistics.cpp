@@ -4,13 +4,16 @@
 
 #include "ROSLogistics.hpp"
 #include <ros/ros.h>
-//#include <std_msgs/array.h>
+#include <iostream>
+using namespace std;
 
 namespace motion_planning
 {
 
 	ROS_Logistics::ROS_Logistics()	:	m_node(nullptr),
-										m_bfs(nullptr)
+										m_rrt_planner(nullptr),
+										m_queue_size(1),			// Want the latest information
+										m_spin_rate(10.0)			// Keep processing callback queue at 10 Hz = 1/10 sec = 100ms
 	{
 		// Register the node with ROS Master
 		m_node = std::make_shared<ros::NodeHandle>();
@@ -18,13 +21,10 @@ namespace motion_planning
 
 		// Establish all necessary connections
 		setUp_ROS_Communication();
-		ROS_INFO("HW1 all graph search services up and running . . .");
-
-		// Create different search algorithms
-		m_bfs = make_shared<BFS>();
+		ROS_INFO("Needle Steering RRT Planner service up and running . . .");
 
 		// Keep looking into service, subscriber queues once in 100ms
-		ros::Rate rate(spin_rate);		// 10 Hz = 1/10 sec = 100ms
+		ros::Rate rate(m_spin_rate);		// 10 Hz = 1/10 sec = 100ms
 		while (m_node->ok())
 		{
 			ros::spinOnce();
@@ -36,8 +36,18 @@ namespace motion_planning
 	void ROS_Logistics::setUp_ROS_Communication()
 	{
 		// Setup the necessary ROS services for users to use
-//		m_srv_bfs = m_node->advertiseService(srv_bfs_name, &ROS_Logistics::srv_bfs, this);
+		m_srv_rrt_planner = m_node->advertiseService("/srv_rrt_planner", &ROS_Logistics::srv_rrt_planner, this);
+	}
 
+	bool ROS_Logistics::srv_rrt_planner(needle_steering::rrt_planner::Request& req,
+										needle_steering::rrt_planner::Response& res)
+	{
+		// Create Env and RRT_Planner to serve the request
+//		m_rrt_planner = make_shared<Planner_RRT>();
+
+		cout << "Service Invoked . . . ." << endl;
+
+		return true;
 	}
 
 }  // namespace motion_planning

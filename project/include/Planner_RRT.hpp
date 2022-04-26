@@ -24,11 +24,11 @@ namespace motion_planning
 		shared_ptr<Node> parent;
 		int cost;
 
-		Node (int pos_x, int pos_y)
+		Node (int pos_x, int pos_y, int pos_z)
 		{
 			x = pos_x;
 			y = pos_y;
-			z = -1;		// for now..update when working with 3D
+			z = pos_z;
 			parent = nullptr;
 			cost = numeric_limits<int>::max();
 		}
@@ -71,8 +71,8 @@ namespace motion_planning
 		 *
 		 */
 		bool search( Environment* env,
-					 const Eigen::Vector2i& start,  const Eigen::Vector2i& goal,
-					 vector<list<Eigen::Vector2i>>& paths, int& steps) override;
+					 const Eigen::Vector3i& start,  const Eigen::Vector3i& goal,
+					 vector<list<Eigen::Vector3i>>& paths, int& steps) override;
 
 	private:
 
@@ -99,6 +99,7 @@ namespace motion_planning
 	    std::mt19937 m_gen;
 	    std::uniform_int_distribution<> m_distrib_x;
 	    std::uniform_int_distribution<> m_distrib_y;
+	    std::uniform_int_distribution<> m_distrib_z;
 	    std::uniform_real_distribution<> m_distrib;
 
 
@@ -112,9 +113,9 @@ namespace motion_planning
 		bool check_collision(const shared_ptr<Node> n1,
 							 shared_ptr<Node> n2);
 
-		void generate_check_points_on_line(const Eigen::Vector2i& p1,
-										   const Eigen::Vector2i& p2,
-										   vector<Eigen::Vector2i>& check_points);
+		void generate_check_points_on_line(const Eigen::Vector3i& p0,
+										   const Eigen::Vector3i& p1,
+										   vector<Eigen::Vector3i>& check_points);
 
 		shared_ptr<Node> get_new_node();
 
@@ -122,9 +123,9 @@ namespace motion_planning
 
 		void get_neighbors(const shared_ptr<Node> rand_node, vector<shared_ptr<Node>>& neighbors);
 
-		void generate_raw_path(vector<list<Eigen::Vector2i>>& paths);
+		void generate_raw_path(vector<list<Eigen::Vector3i>>& paths);
 
-		void generate_smooth_path(vector<list<Eigen::Vector2i>>& paths);
+		void generate_smooth_path(vector<list<Eigen::Vector3i>>& paths);
 
 	};
 

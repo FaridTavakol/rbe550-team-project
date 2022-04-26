@@ -2,17 +2,21 @@
  * This module contains the main function
  */
 
-//#include "ROSLogistics.hpp"
+#include "ROSLogistics.hpp"
 #include "Environment.hpp"
 #include "Planner_RRT.hpp"
 #include <list>
 #include <iostream>
+#include </usr/include/eigen3/unsupported/Eigen/CXX11/Tensor>
+
 using namespace std;
 using namespace motion_planning;
 
 int main(int argc, char **argv)
 {
-//	ros::init(argc, argv, "hw1_basic_search_algo", ros::init_options::AnonymousName);
+//	ros::init(argc, argv, "needle_steering");
+	/* This starts the ROS server to serve matlab client req */
+//	motion_planning::ROS_Logistics rosObj;
 
 	/*
 	 * c1		c2
@@ -23,16 +27,34 @@ int main(int argc, char **argv)
 	 * c4		c3
 	 */
 
+/*
+    // Trying 3D
+	Eigen::Tensor<int, 3> a(2,2,4); 		// input 3D map (x,y,z) --> (col,row,page)
+	a.setZero();
+	a(0,0,0) = 1;
+	a(0,0,1) = 2;
+	cout << a << endl;
+	Eigen::array<Eigen::Index, 3> offsets = {0, 0, 0};
+	Eigen::array<Eigen::Index, 3> extents = {2, 2, 2};
+	auto b = a.slice(offsets, extents);
+	cout << "Sliced: \n:" << b << endl;
+
+//	Eigen::Tensor<int, 3> c(2,2,2);
+	b.setConstant(99);
+	cout << "Final: \n:" << a << endl;
+
+*/
+
 	// Creating Environment.... coordinates in terms of (y,x) from top to bottom since its matrix
-	Environment env(25,25);
-	env.add_obstacle(Eigen::Vector2i(5,10),4,4);
-	env.print();
+	Environment env(25, 25, 25);
+	env.add_obstacle(Eigen::Vector3i(5,10,5),2,2,2);
+//	env.print();
 
 
 	// Start planner
-	const Eigen::Vector2i start {3,12};
-	const Eigen::Vector2i goal {24,2};
-	vector<list<Eigen::Vector2i>> paths;
+	const Eigen::Vector3i start {0,0,0};
+	const Eigen::Vector3i goal {8,8,3};
+	vector<list<Eigen::Vector3i>> paths;
 	int steps;
 
 	double goal_bias = 0.1;
@@ -44,18 +66,20 @@ int main(int argc, char **argv)
 	{
 		cout << "Found" << endl;
 		cout << steps << endl;
-		env.add_path(paths.at(0), 201);	// use 201 and above for showing raw_paths
-		env.add_path(paths.at(1), 501);	// use 501 and above for showing raw_paths
+		for (auto& i : paths.at(0))
+		{
+			cout << i << endl << endl;
+		}
+//		env.add_path(paths.at(0), 201);	// use 201 and above for showing raw_paths
+//		env.add_path(paths.at(1), 501);	// use 501 and above for showing raw_paths
 	}
 	else
 	{
 		cout << "Not Found" << endl;
 	}
 
-	env.print();
+//	env.print();
 
-//	/* This starts the ROS server to serve different algo etc */
-//	motion_planning::ROS_Logistics rosObj();
 
     return 0;
 }
