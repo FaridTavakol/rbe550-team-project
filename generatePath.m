@@ -1,8 +1,7 @@
 % Testing the CURV steering approach
 function generatePath(desiredCurvature, targetPoint)
-% phi = 0.1984;   %constant front wheel angle, radians, 0.1984*180/pi=11.34deg
-% k = -1/sqrt(l2^2+(l1*cot(phi))^2)   %curvature (1/r) or k= tan(phi)/l1
 close all;
+load('/home/farid/Downloads/Q.mat')
 % Unit Vectors
 global e1;
 e1 = [1;0;0];
@@ -119,7 +118,8 @@ hold on;
 % needleTipPos(1,1:end) = 0;
 % FramePos(1,:)= 0
 
-plot3(needleTipPos(1,1:end),needleTipPos(2,1:end), needleTipPos(3,1:end), 'r','Linewidth',2);
+% plot3(needleTipPos(1,1:end),needleTipPos(2,1:end), needleTipPos(3,1:end), 'r','Linewidth',2);
+% Shift frame pose
 plot3(FramePos(1,:), FramePos(2,:), FramePos(3,:), 'b','Linewidth',2);
 grid on
 % set(gca,'DataAspectRatio', [1 1 1]);
@@ -128,8 +128,11 @@ ylabel('y(mm)')
 zlabel('z(mm)')
 title('simulated trajectory')
 legend('tip','frame')
+plot3(Q(1,:),Q(2,:),Q(3,:), 'b.')
 % axis equal
 
+
+return
 %Plot Trajectory
 figure
 hold on;
@@ -146,7 +149,7 @@ legend('tip','frame')
 
 %Plot Trajectory
 figure
-subplot(2,1,1)
+subplot(3,1,1)
 hold on;
 plot(FramePos(3,:), FramePos(2,:), 'b','Linewidth',2);
 grid on
@@ -154,12 +157,20 @@ ylabel('y(mm)')
 xlabel('z(mm)')
 title('simulated trajectory of frame vs time')
 % axis equal
-subplot(2,1,2)
+subplot(3,1,2)
 hold on;
-plot(FramePos(3,:), FramePos(1,:), 'b','Linewidth',2);
+plot(FramePos(3,:), FramePos(1,:), 'g','Linewidth',2);
 grid on
 ylabel('x(mm)')
 xlabel('z(mm)')
+subplot(3,1,3)
+hold on
+ylabel('y(mm)')
+xlabel('x(mm)')
+plot(FramePos(1,:), FramePos(2,:), 'r','Linewidth',2);
+
+
+
 % set(gca,'DataAspectRatio', [1 1 1]);
 end
 % %Plot Trajectory

@@ -31,7 +31,7 @@ V2 = [zeros(3,1); e3];
 % Duty cycle period = t_rot + t_insertion
 delta = 0.25;
 
-desiredCurvature = 0.1;
+desiredCurvature = 0;
 tau = calcDutyCyclePeriod(desiredCurvature, naturalCurvature)/100;
 
 % Time step for simulation
