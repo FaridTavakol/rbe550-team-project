@@ -22,7 +22,7 @@ namespace motion_planning
 		int y;
 		int z;
 		shared_ptr<Node> parent;
-		int cost;
+		double cost;
 
 		Node (int pos_x, int pos_y, int pos_z)
 		{
@@ -30,7 +30,7 @@ namespace motion_planning
 			y = pos_y;
 			z = pos_z;
 			parent = nullptr;
-			cost = numeric_limits<int>::max();
+			cost = 0;
 		}
 
     	bool operator== (const Node& other)
@@ -72,9 +72,10 @@ namespace motion_planning
 		 */
 		bool search( Environment* env,
 					 const Eigen::Vector3i& start,  const Eigen::Vector3i& goal,
-					 vector<list<Eigen::Vector3i>>& paths, int& steps) override;
+					 vector<list<Eigen::Vector3i>>& raw_paths,
+					 vector<list<Eigen::Vector3d>>& smooth_paths) override;
 
-	private:
+	protected:
 
 		Environment* m_env;
 
@@ -108,6 +109,9 @@ namespace motion_planning
 		double dist(const shared_ptr<Node> n1,
 					const shared_ptr<Node> n2);
 
+		double dist(const Eigen::Vector3i p1,
+				    const Eigen::Vector3i p2);
+
 		// If there is a collision, n2 is updated to the node just before collision. So there is no waste of computation
 		// Stops checking and updates n2 the moment 1st obstacle is spotted
 		bool check_collision(const shared_ptr<Node> n1,
@@ -121,11 +125,10 @@ namespace motion_planning
 
 		shared_ptr<Node> get_nearest_node(const shared_ptr<Node> rand_node);
 
-		void get_neighbors(const shared_ptr<Node> rand_node, vector<shared_ptr<Node>>& neighbors);
+		void generate_raw_path(vector<list<Eigen::Vector3i>>& raw_paths);
 
-		void generate_raw_path(vector<list<Eigen::Vector3i>>& paths);
-
-		void generate_smooth_path(vector<list<Eigen::Vector3i>>& paths);
+		void generate_smooth_path(vector<list<Eigen::Vector3i>>& raw_paths,
+								  vector<list<Eigen::Vector3d>>& smooth_paths);
 
 	};
 

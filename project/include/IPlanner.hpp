@@ -26,7 +26,8 @@ namespace motion_planning
 		 */
 		virtual bool search( Environment* env,
 							 const Eigen::Vector3i& start,  const Eigen::Vector3i& goal,
-							 vector<list<Eigen::Vector3i>>& paths, int& steps) = 0;
+							 vector<list<Eigen::Vector3i>>& raw_paths,
+							 vector<list<Eigen::Vector3d>>& smooth_paths) = 0;
 
 	private:
 

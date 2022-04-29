@@ -62,6 +62,10 @@ namespace motion_planning
 		 */
 		void add_path(const list<Eigen::Vector3i>& path, int c);
 
+		void save_path(const list<Eigen::Vector3i>& path, const string& filepath);
+
+		void save_path(const list<Eigen::Vector3d>& path, const string& filepath);
+
 		shared_ptr<Eigen::Tensor<int, 3>> m_grid; 		// input 3D map (x,y,z) --> (col,row,page)
 
 		int m_num_rows;
