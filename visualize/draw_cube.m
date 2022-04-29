@@ -1,8 +1,8 @@
-function [] = draw_cube(len, center, color, transparency, fig)
+function [] = draw_cube(len, center, color, transparency)
 %DRAW_CUBE Summary of this function goes here
 %   Detailed explanation goes here
 % len = [x y z]
-
+    
     center = [center
               center
               center
