@@ -9,9 +9,9 @@ y=dy*x+pose(2,end)-(dy*pose(1,end));
 z=dz*x+pose(3,end)-(dz*pose(1,end));
 plot3(x,y,z,'r-');hold on;
 plot3(pose(1,end),pose(2,end),pose(3,end),'xk');
-xlabel('x');
-ylabel('y');
-zlabel('z');
+xlabel('z (mm)');
+ylabel('x (mm)');
+zlabel('y (mm)');
 hold off;
 end
 
