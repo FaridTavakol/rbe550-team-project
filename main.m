@@ -7,9 +7,10 @@ addpath('Retrace_pose/');
 addpath('Transform_axis/');
 addpath('Pathfinding/');
 addpath('Visualization/');
+addpath('Paths/');
 
 %% Load Generated Trajectory File
-file='/home/farid/Downloads/Paths_and_Obstacle_Locations/4_smooth.xyz';
+file='4_smooth.xyz';
 Goal = transpose(importdata(file)); 
 %% intermediate steps used for model
 stepsMod=5;
