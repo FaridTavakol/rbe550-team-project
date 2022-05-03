@@ -1,11 +1,7 @@
 % Testing the CURV steering approach
-clc;
-clear;
+function generatePath(desiredCurvature, targetPoint)
 close all;
-
-% phi = 0.1984;   %constant front wheel angle, radians, 0.1984*180/pi=11.34deg
-% k = -1/sqrt(l2^2+(l1*cot(phi))^2)   %curvature (1/r) or k= tan(phi)/l1
-
+load('/home/farid/Downloads/Q.mat')
 % Unit Vectors
 global e1;
 e1 = [1;0;0];
@@ -31,7 +27,7 @@ V2 = [zeros(3,1); e3];
 % Duty cycle period = t_rot + t_insertion
 delta = 0.25;
 
-desiredCurvature = 0;
+% desiredCurvature = 0.1;
 tau = calcDutyCyclePeriod(desiredCurvature, naturalCurvature)/100;
 
 % Time step for simulation
@@ -42,10 +38,10 @@ else
 end
 
 % Simulation configuration
-simulationTime = 10;       %second
-time = 0:step:simulationTime;  % simulation run time
+simulationTime = 20;       %second
+% time = 0:step:simulationTime;  % simulation run time
 numberOfIterations = simulationTime/step + 1;
-
+time = 0;
 
 
 % Initial conditions:
@@ -56,10 +52,13 @@ needleTipPos(:,:,1) = [0;0;0];
 % Gab = zeros(4,4, numberOfIterations);
 Gab(4,4,:) = 1;
 
-Gab(:,:,1) = [1 0 0 0;...
-    0 1 0 0;...
-    0 0 1 0;...
-    0 0 0 1];
+%calculate rotation
+desiredTheta= atan2(targetPoint(2),targetPoint(1)) + (pi/2);
+
+Gab(:,:,1) = [cos(desiredTheta) -sin(desiredTheta)  0 0;...
+              sin(desiredTheta) cos(desiredTheta)  0 0;...
+               0 0 1 0;...
+               0 0 0 1];
 % The position of the origin of the transform Gab in each iteration
 % FramePos = zeros(3, 1, numberOfIterations);
 FramePos(1:3,1) =  Gab(1:3,4,1)';
@@ -75,35 +74,38 @@ theta(1) = 0.0;
 
 %% Could also add a rotation speed parameter to override w_max
 for i = 1:numberOfIterations
-       
-    RotationSpeed(i) = dutyCycle(time(i), desiredCurvature, naturalCurvature, delta);  
-
+    
+    RotationSpeed(i) = dutyCycle(time(i), desiredCurvature, naturalCurvature, delta);
+    time(i+1) = time(i)+step;
     % Determine angle for the next iteration
     theta(i+1) = theta(i) + RotationSpeed(i) * step;
     if theta(i+1) > 2*pi
         theta(i+1) = theta(i+1) - (2*pi);
     end
-    
+
     u1 = insertionSpeed * step;
     u2 = RotationSpeed(i) * step;
-      
-  
+
+
     % Calculating the kinematics using nonholonomic bicycle model
     [Gab(:,:,i+1), needleTipPos(:,:,i)] = bicycleKinematicsModelOneIteration(Gab(:,:,i), u1, u2);
     FramePos(:,:,i+1) = Gab(1:3,4,i+1);
-    
+    if FramePos(1,1,i+1)>= targetPoint(1) && FramePos(2,1,i+1) >=targetPoint(2)
+        break
+    end
+
 end
 % Display output
 figure
 hold on;
 subplot(2,1,1)
-plot(time,theta(1:end-1),'r','Linewidth',2);
+plot(time,theta,'r','Linewidth',2);
 grid on
 title('Needle Rotation Angle Setpoints')
 xlabel('Time (sec)')
 ylabel('Rotation Angle (rad)')
 subplot(2,1,2)
-plot(time,RotationSpeed,'b','Linewidth',2);
+plot(time(1:end-1),RotationSpeed,'b','Linewidth',2);
 grid on
 title('Needle Rotation Speed')
 xlabel('Time (sec)')
@@ -116,7 +118,8 @@ hold on;
 % needleTipPos(1,1:end) = 0;
 % FramePos(1,:)= 0
 
-plot3(needleTipPos(1,1:end),needleTipPos(2,1:end), needleTipPos(3,1:end), 'r','Linewidth',2);
+% plot3(needleTipPos(1,1:end),needleTipPos(2,1:end), needleTipPos(3,1:end), 'r','Linewidth',2);
+% Shift frame pose
 plot3(FramePos(1,:), FramePos(2,:), FramePos(3,:), 'b','Linewidth',2);
 grid on
 % set(gca,'DataAspectRatio', [1 1 1]);
@@ -125,8 +128,11 @@ ylabel('y(mm)')
 zlabel('z(mm)')
 title('simulated trajectory')
 legend('tip','frame')
+plot3(Q(1,:),Q(2,:),Q(3,:), 'b.')
 % axis equal
 
+
+return
 %Plot Trajectory
 figure
 hold on;
@@ -143,7 +149,7 @@ legend('tip','frame')
 
 %Plot Trajectory
 figure
-subplot(2,1,1)
+subplot(3,1,1)
 hold on;
 plot(FramePos(3,:), FramePos(2,:), 'b','Linewidth',2);
 grid on
@@ -151,14 +157,22 @@ ylabel('y(mm)')
 xlabel('z(mm)')
 title('simulated trajectory of frame vs time')
 % axis equal
-subplot(2,1,2)
+subplot(3,1,2)
 hold on;
-plot(FramePos(3,:), FramePos(1,:), 'b','Linewidth',2);
+plot(FramePos(3,:), FramePos(1,:), 'g','Linewidth',2);
 grid on
 ylabel('x(mm)')
 xlabel('z(mm)')
-% set(gca,'DataAspectRatio', [1 1 1]);
+subplot(3,1,3)
+hold on
+ylabel('y(mm)')
+xlabel('x(mm)')
+plot(FramePos(1,:), FramePos(2,:), 'r','Linewidth',2);
 
+
+
+% set(gca,'DataAspectRatio', [1 1 1]);
+end
 % %Plot Trajectory
 % figure(4);
 % hold on;

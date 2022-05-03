@@ -16,6 +16,7 @@ u1 = DeltaInsertionDistance;
 u2 = DeltaTheta; %convert to rad
 
 %Solve kinematics for this iteration
-gab = gab0 * expSE3((u1 * toLieSE3(V1) + u2 * toLieSE3(V2)));
-nb = (gab(1:3,1:3) * l2 * e3) + gab(1:3,4);
+gab = gab0 * expSE3(toLieSE3((u1 * V1) + (u2 * V2)));
+nb = (gab0(1:3,1:3) * l2 * e3) + gab0(1:3,4);
+
 

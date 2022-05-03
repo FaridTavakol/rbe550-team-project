@@ -1,0 +1,63 @@
+All positions are in [x,y,z] format.
+Start and goal positions would be the 1st and the last entry in each smooth_path file. 
+
+
+
+----------------CASE 1----------------
+start	= [15,15,0]
+goal	= [15,15,350]	 
+
+Obstacle1:
+position = [15,15,200]
+radius	 = 10
+
+
+----------------CASE 2----------------
+start	= [25,25,0]
+goal	= [25,25,250]	 
+
+Obstacle1:
+position = [15,35,200]
+radius	 = 5
+
+Obstacle2:
+position = [35,35,200]
+radius	 = 5
+
+
+
+----------------CASE 3----------------
+start	= [10,10,0]
+goal	= [30,30,500]	 
+
+Obstacle1:
+position = [30,30,450]
+radius	 = 5
+
+Obstacle2:
+position = [35,35,300]
+radius	 = 5
+
+
+
+----------------CASE 4----------------
+start	= [0,0,0]
+goal	= [45,45,250]	 
+
+Obstacle1:
+position = [15,15,200]
+radius	 = 5
+
+Obstacle2:
+position = [25,25,170]
+radius	 = 5
+
+Obstacle3:
+position = [20,20,230]
+radius	 = 10
+
+
+
+
+
+
