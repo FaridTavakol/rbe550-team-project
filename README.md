@@ -1,4 +1,4 @@
-# Visual Servoing - SCARA Robot
+# Motion Planning for Needle Steering Robot
 
 ## Overview
 This is the final project for the course, "RBE 550 - Motion Planning" at WPI. In this project, the main goal was to develop a motion planning algorithm for a steerable needle robot built at AIM Lab, WPI. The detailed report can be found in the "Report" folder. 
